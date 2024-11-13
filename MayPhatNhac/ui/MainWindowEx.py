@@ -110,3 +110,40 @@ class MainWindowEx(QtWidgets.QMainWindow, Ui_MainWindow):
         volume = self.verticalSlider.value() / 100
         self.audio_output.setVolume(volume)
         self.lineEditVolume.setText(f"{self.verticalSlider.value()}%")
+
+    def select_track(self, index):
+        if self.sender().isChecked():
+            self.current_index = index
+            self.load_music(self.current_index)
+
+    def update_radio_buttons(self):
+        if self.current_index == 0:
+            self.radioButtonBai1.setChecked(True)
+        elif self.current_index == 1:
+            self.radioButtonBai2.setChecked(True)
+        elif self.current_index == 2:
+            self.radioButtonBai3.setChecked(True)
+
+    def handle_error(self, error):
+        print("Error playing music:", self.player.errorString())
+        self.lineEditThongBao.setText("Error playing music")
+
+    def update_status(self, state):
+        if state == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState:
+            self.lineEditThongBao.setText(f"Nhạc đang phát: {self.playlist[self.current_index]['name']}")
+        elif state == QtMultimedia.QMediaPlayer.PlaybackState.PausedState:
+            self.lineEditThongBao.setText("Tạm dừng")
+        else:
+            self.label.setText("Nhạc đã dừng")
+
+    def update_duration(self, duration):
+        self.horizontalSlider.setMaximum(duration)
+
+    def update_position(self, position):
+        self.horizontalSlider.setValue(position)
+        # Optional: Update a label with the current time
+        current_time = QtCore.QTime(0, 0).addMSecs(position)
+        self.lineEditTime.setText(current_time.toString("mm:ss"))
+
+    def set_position(self, position):
+        self.player.setPosition(position)
