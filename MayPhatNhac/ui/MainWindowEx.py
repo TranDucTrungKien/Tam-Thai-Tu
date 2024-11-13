@@ -46,3 +46,67 @@ class MainWindowEx(QtWidgets.QMainWindow, Ui_MainWindow):
         self.horizontalSlider.sliderMoved.connect(self.set_position)
         self.player.positionChanged.connect(self.update_position)
         self.player.durationChanged.connect(self.update_duration)
+
+    def load_music(self, index):
+        """Load and prepare the music track from the playlist."""
+        track = self.playlist[index]
+        self.player.setSource(QtCore.QUrl.fromLocalFile(track["path"]))
+
+        self.lineEditThongBao.setText(f"Nhạc đang phát: {track['name']}")
+
+        self.load_gif(track["gif"])
+
+    def load_gif(self, gif_path):
+        """Load and start the GIF animation on the label."""
+        if os.path.exists(gif_path):
+            gif = QtGui.QMovie(gif_path)
+            if gif.isValid():
+                self.label.setMovie(gif)
+                gif.start()
+            else:
+                print("Error: Cannot display GIF")
+                self.label.clear()
+        else:
+            print("GIF file not found:", gif_path)
+            self.label.clear()
+
+    def play_music(self):
+        """Play or resume the selected music track."""
+        if self.current_index is not None:
+            if self.player.playbackState() == QtMultimedia.QMediaPlayer.PlaybackState.PausedState:
+
+                self.player.play()
+            else:
+
+                self.load_music(self.current_index)
+                self.player.play()
+        else:
+            self.lineEditThongBao.setText("Vui lòng chọn nhạc")
+
+    def pause_music(self):
+        """Pause the music without stopping it completely."""
+        if self.player.playbackState() == QtMultimedia.QMediaPlayer.PlaybackState.PlayingState:
+            self.player.pause()
+            self.lineEditThongBao.setText("Tạm dừng")
+
+    def next_track(self):
+        """Switch to the next track in the playlist and update the radio button selection."""
+        if self.current_index is not None:
+            self.current_index = (self.current_index + 1) % len(self.playlist)
+            self.load_music(self.current_index)
+            self.player.play()
+            self.update_radio_buttons()
+
+    def previous_track(self):
+        """Switch to the previous track in the playlist and update the radio button selection."""
+        if self.current_index is not None:
+            self.current_index = (self.current_index - 1) % len(self.playlist)
+            self.load_music(self.current_index)
+            self.player.play()
+            self.update_radio_buttons()
+
+    def change_volume(self):
+        """Adjust the volume based on the slider value."""
+        volume = self.verticalSlider.value() / 100
+        self.audio_output.setVolume(volume)
+        self.lineEditVolume.setText(f"{self.verticalSlider.value()}%")
