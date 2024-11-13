@@ -23,3 +23,26 @@ class MainWindowEx(QtWidgets.QMainWindow, Ui_MainWindow):
              "gif": r"C:\Users\kien0\OneDrive - zxcvb\Pictures\Templates\PhatNhac3.gif"}
         ]
         self.current_index = None
+
+        self.lineEditThongBao.setText("Vui lòng chọn nhạc")
+        self.label.setText("Vui lòng chọn nhạc")
+
+        self.toolButtonPlay.clicked.connect(self.play_music)
+        self.toolButtonNext.clicked.connect(self.next_track)
+        self.toolButtonPrevious.clicked.connect(self.previous_track)
+        self.toolButtonStop.clicked.connect(self.pause_music)
+        self.verticalSlider.valueChanged.connect(self.change_volume)
+
+        self.radioButtonBai1.toggled.connect(lambda: self.select_track(0))
+        self.radioButtonBai2.toggled.connect(lambda: self.select_track(1))
+        self.radioButtonBai3.toggled.connect(lambda: self.select_track(2))
+
+        self.player.errorOccurred.connect(self.handle_error)
+        self.player.playbackStateChanged.connect(self.update_status)
+
+        self.verticalSlider.setValue(50)
+        self.audio_output.setVolume(0.5)
+
+        self.horizontalSlider.sliderMoved.connect(self.set_position)
+        self.player.positionChanged.connect(self.update_position)
+        self.player.durationChanged.connect(self.update_duration)
